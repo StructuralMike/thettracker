@@ -1,7 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 
+const RECONNECT_TIMEOUT = 5000;
+const AUTOTRACK_TIMEOUT = 1000;
+const WRAM_START = 0xF50000;
+const DATA_START = WRAM_START + 0xF000;
+
 function useAutoTrackWebSocket(host = 'ws://localhost:8080') {
     const [status, setStatus] = useState<string>('Disconnected');
+    const [checkCount, setCheckCount] = useState<number>(0);
     const ws = useRef<WebSocket | null>();
     const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const autotrackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -18,13 +24,13 @@ function useAutoTrackWebSocket(host = 'ws://localhost:8080') {
     const attemptReconnect = (trigger: string) => {
         console.log("attemptReconnect: " + trigger);
         clearTimeout(reconnectTimer.current!);
-        reconnectTimer.current = setTimeout(connect, 5000);
+        reconnectTimer.current = setTimeout(connect, RECONNECT_TIMEOUT);
     };
 
     const startAutotrackTimer = () => {
         console.log("startAutotrackTimer");
         clearTimeout(autotrackTimer.current!);
-        autotrackTimer.current = setTimeout(autotrackReadMem, 1000);
+        autotrackTimer.current = setTimeout(autotrackReadMem, AUTOTRACK_TIMEOUT);
     };
 
     const connect = () => {
@@ -93,23 +99,6 @@ function useAutoTrackWebSocket(host = 'ws://localhost:8080') {
         startAutotrackTimer();
     };
 
-    const autotrackReadMem = () => {
-        console.log("autotrackReadMem");
-        if (reconnectTimer.current) clearTimeout(reconnectTimer.current!); 
-        reconnectTimer.current = null;
-        attemptReconnect("autotrackReadMem");
-        snesread(0xF50000 + 0x10, 1, function (event: MessageEvent) {
-            let gamemode = new Uint8Array(event.data)[0];
-            if (![0x07, 0x09, 0x0b].includes(gamemode)) {
-                startAutotrackTimer();
-                return;
-            }
-            console.log("Autotracking: " + gamemode);
-            // Future code will go here
-            startAutotrackTimer();
-        });
-    };
-
     const snesread = (address: Number, size: Number, callback: Function) => {
         ws.current!.send(JSON.stringify({
             Opcode: 'GetAddress',
@@ -119,6 +108,32 @@ function useAutoTrackWebSocket(host = 'ws://localhost:8080') {
         ws.current!.onmessage = (event) => callback(event);
     };
 
+    const autotrackReadMem = () => {
+        console.log("autotrackReadMem");
+        if (reconnectTimer.current) clearTimeout(reconnectTimer.current!); 
+        reconnectTimer.current = null;
+        attemptReconnect("autotrackReadMem");
+        snesread(WRAM_START + 0x10, 1, function (event: MessageEvent) {
+            let gamemode = new Uint8Array(event.data)[0];
+            if (![0x07, 0x09, 0x0b].includes(gamemode)) {
+                startAutotrackTimer();
+                return;
+            }
+            console.log("Autotracking: " + gamemode);
+            readCheckCount();
+            startAutotrackTimer();
+        });
+    };
+
+    const readCheckCount = () => {
+        console.log("readCheckCount");
+        snesread(DATA_START + 0x423, 1, function (event: MessageEvent) {
+            setCheckCount(new Uint8Array(event.data)[0]);
+            console.log("ReadCheckCount: " + checkCount);
+        });
+        return checkCount;
+    }
+
     useEffect(() => {
         connect();
         return () => {
@@ -127,7 +142,7 @@ function useAutoTrackWebSocket(host = 'ws://localhost:8080') {
         };
     }, [host]);
 
-    return { status };
+    return { status, checkCount };
 }
 
 export default useAutoTrackWebSocket;

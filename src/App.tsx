@@ -1,16 +1,10 @@
-import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import useAutoTrackWebSocket from './autotrack.tsx'
 
 function App() {
-  const [count, setCount] = useState(0)
-  const connectionStatus = () => {
-    const { status } = useAutoTrackWebSocket();
-  
-    return <p>WebSocket Status: {status}</p>;
-  };
+  const { status, checkCount } = useAutoTrackWebSocket();
   return (
     <>
       <div>
@@ -22,19 +16,12 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
       <div>
-        {connectionStatus()}
+        {status}<br></br>
+        {checkCount} checks!
       </div>
     </>
   )

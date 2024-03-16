@@ -9,7 +9,7 @@ function App() {
   const connectionStatus = () => {
     const { status } = useAutoTrackWebSocket();
   
-    return <div>WebSocket Status: {status}</div>;
+    return <p>WebSocket Status: {status}</p>;
   };
   return (
     <>
@@ -33,9 +33,9 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-      <p>
+      <div>
         {connectionStatus()}
-      </p>
+      </div>
     </>
   )
 }

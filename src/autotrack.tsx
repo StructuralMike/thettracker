@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef, MutableRefObject } from 'react';
-import Timer from './timer.tsx';
-import Controls from './controls.tsx';
 
 const RECONNECT_TIMEOUT = 5000;
 const AUTOTRACK_TIMEOUT = 500;
 const WRAM_START = 0xF50000; // $7E0000
 const GAME_MODE = WRAM_START + 0x10;
 const SRAM_START = 0xF5F000; // $7EF000
+const SRAM_END = SRAM_START + 0x4FF;;
 const ROOM_DATA_START = SRAM_START;
 const ROOM_DATA_END = SRAM_START + 0x24F;
 const OVERWORLD_EVENT_START = SRAM_START + 0x280;
@@ -16,17 +15,43 @@ const SHOP_DATA_END = SRAM_START + 0x33F;
 const ITEM_DATA_START = SRAM_START + 0x340;
 const ITEM_DATA_END = SRAM_START + 0x3F0;
 const RANDOMIZER_DATA_START = SRAM_START + 0x3F1;
-const RANDOMIZER_DATA_END = SRAM_START + 0x4FD;
+const RANDOMIZER_DATA_END = SRAM_START + 0x4FF;
+const STATS_DATA_START = SRAM_START + 0x420;
+const STATS_DATA_END = SRAM_START + 0x4FF;
 
-let currentCheckCount = 0;
+const STATS_MAP = {
+    'BONKS': 0x420,
+    'CHECKS': 0x423,
+    'SAVE_AND_QUIT': 0x42D,
+    'HEARTPIECES': 0x448,
+    'DEATHS': 0x449,
+    'FLUTES': 0x44B,
+    'REVIVALS': 0x453,
+    'CHESTTURNS': 0x468
+}
+
+const GAME_MODE_MAP = {
+    'STARTUP': 0x00,
+    'GAME_SELECT': 0x01,
+    'DUNGEON': 0x07,
+    'OVERWORLD': 0x09,
+    'SPECIAL_OVERWORLD': 0x0B,
+    'TEXT_MAP_ITEM': 0x0E,
+    'SAVE_QUIT': 0x17,
+    'TRIFORCE_ROOM': 0x19,
+    'SELECT_SPAWN': 0x1B,
+};
+
 
 export interface autotrackingProps {
     status: string;
-    checkCount: number;
-    prevCheckCount?: number;
-    shouldStart: boolean;
     host?: string;
     port?: number;
+    shouldStart: boolean;
+    checkCount: number;
+    prevCheckCount?: number;
+    chestTurns: number;
+    bonks: number;
 }
 
 function useAutoTrackWebSocket(props: autotrackingProps){
@@ -35,6 +60,8 @@ function useAutoTrackWebSocket(props: autotrackingProps){
     const ws = useRef<WebSocket | null>();
     const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const autotrackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const prevSRAM = useRef<Uint8Array | null>(null);
+    const [currentSRAM, setSRAM] = useState<Uint8Array | null>(null);
 
     const dataRef = useRef(data);
     useEffect(() => {
@@ -145,38 +172,67 @@ function useAutoTrackWebSocket(props: autotrackingProps){
         if (reconnectTimer.current) clearTimeout(reconnectTimer.current!); 
         attemptReconnect("autotrackReadMem");
         snesread(GAME_MODE, 1, function (event: MessageEvent) {
-            let gamemode = new Uint8Array(event.data)[0];
-            if (![0x07, 0x09, 0x0b].includes(gamemode)) {
-                if (dataRef.current.shouldStart && gamemode === 0x19) {
+            let currentGamemode = new Uint8Array(event.data)[0];
+            if (![GAME_MODE_MAP['DUNGEON'], GAME_MODE_MAP['OVERWORLD'], GAME_MODE_MAP['SPECIAL_OVERWORLD']].includes(currentGamemode)) {
+                if (dataRef.current.shouldStart && currentGamemode === GAME_MODE_MAP['TRIFORCE_ROOM']) {
                     setData(prev => ({ ...prev, shouldStart: false}));
-                } else if (!dataRef.current.shouldStart && gamemode === 0x1B) {
+                } else if (!dataRef.current.shouldStart && currentGamemode === GAME_MODE_MAP['SELECT_SPAWN']) {
                     setData(prev => ({ ...prev, shouldStart: true}));
                 }
                 startAutotrackTimer();
             } else {
-//                console.log("Autotracking: " + gamemode);
+//                console.log("Autotracking: " + currentGamemode);
                 if (!dataRef.current.shouldStart) {
                     setData(prev => ({ ...prev, shouldStart: true}));
                 }
-                readCheckCount();
+                readSRAM();
                 startAutotrackTimer();
             }
         });
     };
 
-    const readCheckCount = () => {
-//        console.log("readCheckCount");
-        snesread(SRAM_START + 0x423, 1, function (event: MessageEvent) {
-            currentCheckCount = new Uint8Array(event.data)[0];
+    const readSRAM = () => {
+        snesread(SRAM_START, SRAM_END - SRAM_START, function (event: MessageEvent) {
+            prevSRAM.current = currentSRAM;
+            setSRAM(new Uint8Array(event.data));
         });
-        if (currentCheckCount !== dataRef.current.checkCount) {
-            setData(prev => ({ ...prev,
-                prevCheckCount: prev.checkCount,
-                checkCount: currentCheckCount
-            }));
-            console.log("ReadCheckCount: " + currentCheckCount);
+        console.log("ReadSRAM");
+    };
+
+    useEffect(() => {
+        if (currentSRAM && !prevSRAM.current) {
+            updateStats(currentSRAM);
         }
-    }
+        prevSRAM.current = currentSRAM;
+    }, [currentSRAM]);
+
+    const updateStats = (sram: Uint8Array) => {
+        let updates = {};
+
+        const currentCheckCount = sram[STATS_MAP['CHECKS']];
+        if (currentCheckCount !== dataRef.current.checkCount) {
+            updates = { ...updates,
+                prevCheckCount: dataRef.current.checkCount,
+                checkCount: currentCheckCount
+            };
+        }
+        const currentBonks = sram[STATS_MAP['BONKS']];
+        if (currentBonks !== dataRef.current.bonks) {
+            updates = { ...updates, 
+                bonks: currentBonks
+            };
+        }
+        const currentChestTurns = sram[STATS_MAP['CHESTTURNS']];
+        if (currentChestTurns !== dataRef.current.chestTurns) {
+            updates = { ...updates,
+                chestTurns: currentChestTurns
+            };
+        }
+
+        if (Object.keys(updates).length > 0) {
+            setData(prev => ({ ...prev, ...updates}))
+        }
+    };
 
     useEffect(() => {
         connect();

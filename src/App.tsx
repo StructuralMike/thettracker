@@ -1,47 +1,49 @@
-import reactLogo from './assets/boots.png'
-import viteLogo from './assets/android-chrome-192x192.png'
 import { useRef } from 'react'
 import './App.css'
 import useAutoTrackWebSocket from './autotrack.tsx'
 import { autotrackingProps } from './autotrack.tsx'
 import Timer from './timer.tsx'
+import Box from './statbox.tsx'
 
 function App() {
   const props = useRef<autotrackingProps>({
     status: 'Disconnected',
-    checkCount: 0,
-    shouldStart: false,
     host: 'ws://localhost',
     port: 8080,
+    shouldStart: false,
+    checkCount: 0,
+    chestTurns: 0,
+    bonks: 0
   });
   const data = useAutoTrackWebSocket(props.current);
   const timer = Timer({ shouldStart: data.shouldStart });
   const cph = Math.round(data.checkCount / (timer / 3600));
   const duration = new Date(timer * 1000).toISOString().substr(11, 8);
+  const mBpm = Math.round(data.bonks / (timer / 60) * 1000);
+  const ctph = Math.round(data.chestTurns / (timer / 3600));
 
   return (
     <>
+      <h1>Auto Stats 0.0.2</h1><br></br>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Auto Stats</h1>
-      <div>
-            <div>
-                {data.checkCount} checks!<br></br>
-                {cph} checks per hour!<br></br>
-                {duration} elapsed!<br></br>
-            </div>
-            
-            <div>
-              {data.status}<br></br>
+        <span className="inline-grid grid-cols-3 gap-4">
+        <Box title="Check Count" count={data.checkCount} speed={cph} unit="cph" />
+        <Box title="Bonks" count={data.bonks} speed={mBpm} unit="mBpm" />
+        <Box title="Chest Turns" count={data.chestTurns} speed={ctph} unit="ctph" />
+        </span>
+        {/* Duration */}
+        <div className="flex justify-center items-center">
+            <div className="p-6">
+                <h2 className="text-5xl font-bold text-blue-500" style={{ textShadow: '2px 4px 4px rgba(0,0,0,0.8)',  }}>
+                    {duration}
+                </h2>
             </div>
         </div>
-      
+      </div>
+      <div>
+        <small className="hover:text-orange-400">{data.status}</small>
+      </div>
+
     </>
   )
 }

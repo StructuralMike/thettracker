@@ -9,7 +9,7 @@ function App() {
   const props = useRef<autotrackingProps>({
     status: 'Disconnected',
     host: 'ws://localhost',
-    port: 8080,
+    port: 23074,
     shouldStart: false,
     checkCount: 0,
     chestTurns: 0,

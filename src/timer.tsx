@@ -21,7 +21,7 @@ function Timer ({ shouldStart = false }) {
         return () => clearInterval(interval.current);
     }, [shouldStart]);
 
-    return time;
+    return time
 }
 
 export default Timer;

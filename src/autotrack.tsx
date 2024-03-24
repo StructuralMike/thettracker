@@ -30,6 +30,8 @@ const STATS_MAP = {
     'CHESTTURNS': 0x468
 }
 
+const MAX_CHECKS = 0x33E;
+
 const GAME_MODE_MAP = {
     'STARTUP': 0x00,
     'GAME_SELECT': 0x01,
@@ -48,6 +50,7 @@ export interface autotrackingProps {
     host?: string;
     port?: number;
     shouldStart: boolean;
+    maxChecks: number;
     checkCount: number;
     prevCheckCount?: number;
     chestTurns: number;
@@ -179,32 +182,39 @@ function useAutoTrackWebSocket(props: autotrackingProps){
                 } else if (!dataRef.current.shouldStart && currentGamemode === GAME_MODE_MAP['SELECT_SPAWN']) {
                     setData(prev => ({ ...prev, shouldStart: true}));
                 }
-                startAutotrackTimer();
             } else {
 //                console.log("Autotracking: " + currentGamemode);
                 if (!dataRef.current.shouldStart) {
                     setData(prev => ({ ...prev, shouldStart: true}));
                 }
                 readSRAM();
-                startAutotrackTimer();
             }
+            startAutotrackTimer();
         });
     };
 
     const readSRAM = () => {
         snesread(SRAM_START, SRAM_END - SRAM_START, function (event: MessageEvent) {
-            prevSRAM.current = currentSRAM;
             setSRAM(new Uint8Array(event.data));
         });
         console.log("ReadSRAM");
     };
 
     useEffect(() => {
-        if (currentSRAM && !prevSRAM.current) {
+        if (!currentSRAM) return;
+        if (prevSRAM.current) {
             updateStats(currentSRAM);
+        } else {
+            initializeStats(currentSRAM);
         }
         prevSRAM.current = currentSRAM;
     }, [currentSRAM]);
+
+    const initializeStats = (sram: Uint8Array) => {
+        if (sram[MAX_CHECKS] != 0) {
+            setData(prev => ({ ...prev, maxChecks: sram[MAX_CHECKS]+ sram[MAX_CHECKS+1]*256}));
+        }
+    }
 
     const updateStats = (sram: Uint8Array) => {
         let updates = {};

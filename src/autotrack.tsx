@@ -218,8 +218,13 @@ function useAutoTrackWebSocket(props: autotrackingProps){
 
     const updateStats = (sram: Uint8Array) => {
         let updates = {};
+        let currentCheckCount;
 
-        const currentCheckCount = sram[STATS_MAP['CHECKS']];
+        if (data.maxChecks > 255) {
+            currentCheckCount = sram[STATS_MAP['CHECKS']] + sram[STATS_MAP['CHECKS']+1]*256;
+        } else {
+            currentCheckCount = sram[STATS_MAP['CHECKS']];
+        }
         if (currentCheckCount !== dataRef.current.checkCount) {
             updates = { ...updates,
                 prevCheckCount: dataRef.current.checkCount,

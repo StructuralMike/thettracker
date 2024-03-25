@@ -28,19 +28,18 @@ function App() {
     'ctph': {'buckets': [0, 2, 10], 'colors': [[58,134,255], [251,86,7], [255,190,11]]}
   });
   if (data.maxChecks > 400) {
-    SPEED_MAP.current['cph'].buckets = [100, 200, 250, 300, 400]
+    SPEED_MAP.current['cph'].buckets = [100, 200, 250, 300, 450]
   }
   
   return (
     <>
-      <h1>Auto Stats 0.0.2</h1><br></br>
+      <h1>Auto Stats v0.0.2</h1><br></br>
       <div>
         <span className="inline-grid grid-cols-3 gap-4">
         <Box title="Check Count" count={data.checkCount} speed={cph} unit="cph" buckets={SPEED_MAP.current['cph'].buckets} colors={SPEED_MAP.current['cph'].colors} />
         <Box title="Bonks" count={data.bonks} speed={mBpm} unit="mBpm" buckets={SPEED_MAP.current['mBpm'].buckets} colors={SPEED_MAP.current['mBpm'].colors} />
         <Box title="Chest Turns" count={data.chestTurns} speed={ctph} unit="ctph" buckets={SPEED_MAP.current['ctph'].buckets} colors={SPEED_MAP.current['ctph'].colors} />
         </span>
-        {/* Duration */}
         <div className="flex justify-center items-center">
             <div className="p-6">
                 <h2 className="text-5xl font-bold text-blue-500" style={{ textShadow: '2px 4px 4px rgba(0,0,0,0.8)',  }}>

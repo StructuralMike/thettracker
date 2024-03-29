@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, MutableRefObject } from 'react';
+import { useShouldStart } from './timerContext.tsx';
 
 const RECONNECT_TIMEOUT = 5000;
 const AUTOTRACK_TIMEOUT = 500;
@@ -49,7 +50,6 @@ export interface autotrackingProps {
     status: string;
     host?: string;
     port?: number;
-    shouldStart: boolean;
     maxChecks: number;
     checkCount: number;
     prevCheckCount?: number;
@@ -58,7 +58,7 @@ export interface autotrackingProps {
 }
 
 function useAutoTrackWebSocket(props: autotrackingProps){
-
+    const { shouldStart, setShouldStart, timerOn, setTimerOn } = useShouldStart();
     const [data, setData] = useState<autotrackingProps>(props);
     const ws = useRef<WebSocket | null>();
     const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -177,15 +177,15 @@ function useAutoTrackWebSocket(props: autotrackingProps){
         snesread(GAME_MODE, 1, function (event: MessageEvent) {
             let currentGamemode = new Uint8Array(event.data)[0];
             if (![GAME_MODE_MAP['DUNGEON'], GAME_MODE_MAP['OVERWORLD'], GAME_MODE_MAP['SPECIAL_OVERWORLD']].includes(currentGamemode)) {
-                if (dataRef.current.shouldStart && currentGamemode === GAME_MODE_MAP['TRIFORCE_ROOM']) {
-                    setData(prev => ({ ...prev, shouldStart: false}));
-                } else if (!dataRef.current.shouldStart && currentGamemode === GAME_MODE_MAP['SELECT_SPAWN']) {
-                    setData(prev => ({ ...prev, shouldStart: true}));
+                if (shouldStart && currentGamemode === GAME_MODE_MAP['TRIFORCE_ROOM']) {
+                    setShouldStart(false);
+                } else if (!shouldStart && currentGamemode === GAME_MODE_MAP['SELECT_SPAWN']) {
+                    setShouldStart(true);
                 }
             } else {
 //                console.log("Autotracking: " + currentGamemode);
-                if (!dataRef.current.shouldStart) {
-                    setData(prev => ({ ...prev, shouldStart: true}));
+                if (!shouldStart) {
+                    setShouldStart(true);
                 }
                 readSRAM();
             }
@@ -212,7 +212,7 @@ function useAutoTrackWebSocket(props: autotrackingProps){
 
     const initializeStats = (sram: Uint8Array) => {
         if (sram[MAX_CHECKS] != 0) {
-            setData(prev => ({ ...prev, maxChecks: sram[MAX_CHECKS]+ sram[MAX_CHECKS+1]*256}));
+            setData(prev => ({ ...prev, maxChecks: sram[MAX_CHECKS] + sram[MAX_CHECKS+1]*256}));
         }
     }
 

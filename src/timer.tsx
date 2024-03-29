@@ -1,8 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useShouldStart } from './timerContext';
 
-function Timer ({ shouldStart = false }) {
-    const [time, setTime] = useState(0);
-    const [timerOn, setTimerOn] = useState(false);
+export interface TimerProps {
+    timeStarted: number;
+    startAt: number;
+    duration: number;
+}
+
+function Timer ( props: TimerProps ) {
+    const { shouldStart, setShouldStart, timerOn, setTimerOn } = useShouldStart();
+    const [timerData, setTimerData] = useState<TimerProps>(props);
     const interval = useRef<ReturnType<typeof setTimeout> | undefined>();
 
     useEffect(() => {
@@ -10,18 +17,50 @@ function Timer ({ shouldStart = false }) {
         if (shouldStart && !timerOn) {
             console.log("useEffect: Timer: start");
             setTimerOn(true);
-            interval.current = setInterval(() => {
-                setTime((prevTime) => prevTime + 1);
-            }, 1000);
         } else if (!shouldStart && timerOn) {
             console.log("useEffect: Timer: stop");
             clearInterval(interval.current);
-            setTimerOn(false);
+            interval.current = undefined;
+            let time = timerData.startAt + Math.floor(Date.now() - timerData.timeStarted);
+            setTimerData(prev => ({ ...prev,
+                duration: time,
+                startAt: time
+            }));
         }
-        return () => clearInterval(interval.current);
+        return () => {
+            clearInterval(interval.current);
+            interval.current = undefined;
+        }
     }, [shouldStart]);
 
-    return time
+    useEffect(() => {
+        console.log("useEffect: Timer: timerOn");
+        if (!shouldStart) { return; }
+        console.log("useEffect: Timer: timerOn, shouldstart");
+        if (timerOn && !interval.current) {
+            console.log("useEffect: Timer: timerOn, start");
+            setTimerData(prev => ({ ...prev,
+                timeStarted: Date.now(),
+                duration: prev.startAt
+            }));
+            interval.current = setInterval(() => {
+                setTimerData(prev => ({ ...prev,
+                    duration: prev.startAt + Math.floor(Date.now() - prev.timeStarted)
+                }));
+            }, 1000);
+        } else if (!timerOn && interval.current) {
+            console.log("useEffect: Timer: timerOn, stop");
+            clearInterval(interval.current);
+            interval.current = undefined;
+            let time = timerData.startAt + Math.floor(Date.now() - timerData.timeStarted);
+            setTimerData(prev => ({ ...prev,
+                duration: time,
+                startAt: time
+            }));
+        }
+    }, [timerOn]);
+
+    return timerData
 }
 
 export default Timer;

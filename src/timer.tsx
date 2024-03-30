@@ -13,7 +13,7 @@ function Timer ( props: TimerProps ) {
     const interval = useRef<ReturnType<typeof setTimeout> | undefined>();
 
     useEffect(() => {
-        console.log("useEffect: Timer");
+        console.log("useEffect: Timer, shouldStart: " + shouldStart);
         if (shouldStart && !timerOn) {
             console.log("useEffect: Timer: start");
             setTimerOn(true);

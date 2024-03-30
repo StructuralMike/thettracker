@@ -59,6 +59,7 @@ export interface autotrackingProps {
 
 function useAutoTrackWebSocket(props: autotrackingProps){
     const { shouldStart, setShouldStart, timerOn, setTimerOn } = useShouldStart();
+    const shouldStartRef = useRef(shouldStart);
     const [data, setData] = useState<autotrackingProps>(props);
     const ws = useRef<WebSocket | null>();
     const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,6 +71,10 @@ function useAutoTrackWebSocket(props: autotrackingProps){
     useEffect(() => {
         dataRef.current = data;
     }, [data]);
+
+    useEffect(() => {
+        shouldStartRef.current = shouldStart;
+    }, [shouldStart]);
 
     const cleanup = () => {
         console.log("cleanup");
@@ -177,14 +182,14 @@ function useAutoTrackWebSocket(props: autotrackingProps){
         snesread(GAME_MODE, 1, function (event: MessageEvent) {
             let currentGamemode = new Uint8Array(event.data)[0];
             if (![GAME_MODE_MAP['DUNGEON'], GAME_MODE_MAP['OVERWORLD'], GAME_MODE_MAP['SPECIAL_OVERWORLD']].includes(currentGamemode)) {
-                if (shouldStart && currentGamemode === GAME_MODE_MAP['TRIFORCE_ROOM']) {
+                if (shouldStartRef.current && currentGamemode === GAME_MODE_MAP['TRIFORCE_ROOM']) {
                     setShouldStart(false);
-                } else if (!shouldStart && currentGamemode === GAME_MODE_MAP['SELECT_SPAWN']) {
+                } else if (!shouldStartRef.current && currentGamemode === GAME_MODE_MAP['SELECT_SPAWN']) {
                     setShouldStart(true);
                 }
             } else {
 //                console.log("Autotracking: " + currentGamemode);
-                if (!shouldStart) {
+                if (!shouldStartRef.current) {
                     setShouldStart(true);
                 }
                 readSRAM();

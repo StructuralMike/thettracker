@@ -33,12 +33,12 @@ function App() {
   const mBpm = Math.round(data.bonks / (seconds / 60) * 1000);
   const ctph = Math.round(data.chestTurns / (seconds / 3600));
   const SPEED_MAP = useRef({
-    'cph': {'buckets': [60, 70, 85, 95, 110], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
-    'mBpm': {'buckets': [0, 250, 750, 1500, 3000], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
-    'ctph': {'buckets': [0, 2, 10], 'colors': [[58,134,255], [251,86,7], [255,190,11]]}
+    'cph': {'buckets': [65, 85, 100, 115, 130], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
+    'mBpm': {'buckets': [0, 100, 200, 400, 800], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
+    'ctph': {'buckets': [0, 10, 25], 'colors': [[58,134,255], [251,86,7], [255,190,11]]}
   });
   if (data.maxChecks > 400) {
-    SPEED_MAP.current['cph'].buckets = [100, 200, 250, 300, 450]
+    SPEED_MAP.current['cph'].buckets = [150, 250, 350, 450, 550]
   };
   
   const handleRightClick = (event: React.MouseEvent<HTMLButtonElement>) => {

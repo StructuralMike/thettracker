@@ -13,3 +13,7 @@
     inset -3px -3px 7px rgba(0, 0, 0, 0.05),
     3px 3px 5px rgba(0, 0, 0, 0.15);
 }
+
+.strong-button-font {
+  font-family: 'Impact', sans-serif;
+}

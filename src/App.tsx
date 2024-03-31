@@ -9,6 +9,20 @@ import { useShouldStart } from './timerContext.tsx'
 
 
 function App() {
+
+  const params = new URLSearchParams(window.location.search);
+  const userSettings = {
+    checkCount: params.get('checkCount') === 'true',
+    bonks: params.get('bonks') === 'true',
+    chestTurns: params.get('chestTurns') === 'true',
+    boxes: 0
+  };
+  if (userSettings.checkCount) userSettings.boxes++;
+  if (userSettings.bonks) userSettings.boxes++;
+  if (userSettings.chestTurns) userSettings.boxes++;
+  if (userSettings.boxes === 0) userSettings.boxes = 1;
+  if (userSettings.boxes === 2) userSettings.boxes = 3;
+
   const timerProps = useRef<TimerProps>({
     timeStarted: 0,
     startAt: 0,
@@ -64,14 +78,19 @@ function App() {
 
   return (
     <>
-      <h1>Auto Stats v0.0.3</h1><br></br>
       <div>
-        <span className="inline-grid grid-cols-3 gap-4">
-        <button onClick={() => setManualCheckCount((prev) => prev + 1)} onContextMenu={handleRightClick} onWheel={handleScroll}>
-          <Box title="Check Count" count={data.checkCount + manualCheckCount} speed={cph} unit="cph" buckets={SPEED_MAP.current['cph'].buckets} colors={SPEED_MAP.current['cph'].colors}/>
-        </button>
-        <Box title="Bonks" count={data.bonks} speed={mBpm} unit="mBpm" buckets={SPEED_MAP.current['mBpm'].buckets} colors={SPEED_MAP.current['mBpm'].colors} />
-        <Box title="Chest Turns" count={data.chestTurns} speed={ctph} unit="ctph" buckets={SPEED_MAP.current['ctph'].buckets} colors={SPEED_MAP.current['ctph'].colors} />
+        <span className={`inline-grid grid-cols-${userSettings.boxes} gap-4`}>
+          {userSettings.checkCount && (
+            <button onClick={() => setManualCheckCount((prev) => prev + 1)} onContextMenu={handleRightClick} onWheel={handleScroll}>
+              <Box title="Check Count" count={data.checkCount + manualCheckCount} speed={cph} unit="cph" buckets={SPEED_MAP.current['cph'].buckets} colors={SPEED_MAP.current['cph'].colors}/>
+            </button>
+          )}
+          {userSettings.bonks && (
+            <Box title="Bonks" count={data.bonks} speed={mBpm} unit="mBpm" buckets={SPEED_MAP.current['mBpm'].buckets} colors={SPEED_MAP.current['mBpm'].colors} />
+          )}
+          {userSettings.chestTurns && (
+            <Box title="Chest Turns" count={data.chestTurns} speed={ctph} unit="ctph" buckets={SPEED_MAP.current['ctph'].buckets} colors={SPEED_MAP.current['ctph'].colors} />
+          )}
         </span>
         <div className="flex justify-center items-center space-x-4 mb-8">
           <div className="p-4">

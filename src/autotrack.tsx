@@ -28,7 +28,16 @@ const STATS_MAP = {
     'DEATHS': 0x449,
     'FLUTES': 0x44B,
     'REVIVALS': 0x453,
-    'CHESTTURNS': 0x468
+    'CHESTTURNS': 0x468,
+    'OVERWORLDMIRRORS': 0x43A,
+    'DUNGEONMIRRORS': 0x43B,
+}
+
+const STATS_WORDS_MAP = {
+    'RUPEES': 0x42B,
+    'SCREENS': 0x43C,
+    'DAMAGE': 0x46A,
+    'MAGIC': 0x46C
 }
 
 const MAX_CHECKS = 0x33E;
@@ -55,6 +64,11 @@ export interface autotrackingProps {
     prevCheckCount?: number;
     chestTurns: number;
     bonks: number;
+    deaths: number;
+    rupees: number;
+    screens: number;
+    damage: number;
+    magic: number;
 }
 
 function useAutoTrackWebSocket(props: autotrackingProps){
@@ -246,6 +260,34 @@ function useAutoTrackWebSocket(props: autotrackingProps){
         if (currentChestTurns !== dataRef.current.chestTurns) {
             updates = { ...updates,
                 chestTurns: currentChestTurns
+            };
+        }
+
+        const currentDeaths = sram[STATS_MAP['DEATHS']];
+        if (currentDeaths !== dataRef.current.deaths) {
+            updates = { ...updates,
+                deaths: currentDeaths
+            };
+        }
+
+        const currentRupees = sram[STATS_WORDS_MAP['RUPEES']] + sram[STATS_WORDS_MAP['RUPEES']+1]*256;
+        if (currentRupees !== dataRef.current.rupees) {
+            updates = { ...updates,
+                rupees: currentRupees
+            };
+        }
+
+        const currentScreens = sram[STATS_WORDS_MAP['SCREENS']] + sram[STATS_WORDS_MAP['SCREENS']+1]*256;
+        if (currentScreens !== dataRef.current.screens) {
+            updates = { ...updates,
+                screens: currentScreens
+            };
+        }
+
+        const currentDamage = sram[STATS_WORDS_MAP['DAMAGE']] + sram[STATS_WORDS_MAP['DAMAGE']+1]*256;
+        if (currentDamage !== dataRef.current.damage) {
+            updates = { ...updates,
+                damage: currentDamage
             };
         }
 

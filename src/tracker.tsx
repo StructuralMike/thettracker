@@ -1,8 +1,8 @@
-import App from './App.tsx'
-import './tracker.css'
-import { ShouldStartProvider } from './timerContext.tsx'
-import { userSettingsProps } from './App.tsx'
+import './css/tracker.css'
 import { useRef } from 'react';
+import App from './App.tsx'
+import { userSettingsProps } from './App.tsx'
+import { ShouldStartProvider } from './timerContext.tsx'
 
 function Tracker() {
         
@@ -15,16 +15,31 @@ function Tracker() {
         return boxes;
     };
     const userSettingsProps = useRef<userSettingsProps>({
-      checkCount: params.get('checkCount') === 'true',
-      bonks: params.get('bonks') === 'true',
-      chestTurns: params.get('chestTurns') === 'true',
-      boxes: parseUrlBoxes()
+        checkCount: params.get('checkCount') === 'true',
+        bonks: params.get('bonks') === 'true',
+        chestTurns: params.get('chestTurns') === 'true',
+        deaths: params.get('deaths') === 'true',
+        rupees: params.get('rupees') === 'true',
+        screens: params.get('screens') === 'true',
+        damage: params.get('damage') === 'true',
+        magic: params.get('magic') === 'true',
+        boxes: parseUrlBoxes()
     });
 
 
     return (
         <ShouldStartProvider>
-            <App checkCount={userSettingsProps.current.checkCount} bonks={userSettingsProps.current.bonks} chestTurns={userSettingsProps.current.chestTurns} boxes={userSettingsProps.current.boxes}/>
+            <App 
+                checkCount={userSettingsProps.current.checkCount}
+                bonks={userSettingsProps.current.bonks}
+                chestTurns={userSettingsProps.current.chestTurns}
+                deaths={userSettingsProps.current.deaths}
+                rupees={userSettingsProps.current.rupees}
+                screens={userSettingsProps.current.screens}
+                damage={userSettingsProps.current.damage}
+                magic={userSettingsProps.current.magic}
+                boxes={userSettingsProps.current.boxes}
+            />
         </ShouldStartProvider>
     )
 }

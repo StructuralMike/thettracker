@@ -1,42 +1,50 @@
+import './css/launchpage.css';
 import React, { useState, useRef } from 'react';
-import Checkbox from './checkbox.tsx';
-import './launchpage.css';
+import Checkbox from './components/checkbox.tsx';
+import widgetData from './data/widgets.json';
+
+interface Settings {
+    [key: string]: boolean;
+}
 
 const LaunchPage = () => {
-    const [settings, setSettings] = useState({
-        checkCount: true,
-        bonks: false,
-        chestTurns: false,
-        boxes: 1
-    });
+    const initialSettings: Settings = widgetData.reduce((acc, curr) => {
+        acc[curr.name] = true;
+        return acc;
+    }, {} as Settings);
+    const [settings, setSettings] = useState<Settings>(initialSettings);
     
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
+        const boxCount = Math.min(4, Object.entries(settings).filter(([_, value]) => value).length);
         const queryParams = new URLSearchParams(Object.entries(settings).filter(([_, value]) => value).map(([key, value]) => [key, String(value)])).toString();
         const windowFeatures = "width=600, height=600, menubar=no, toolbar=no, location=no, status=no, resizable=yes, scrollbars=yes";
-        window.open(`./index.html?tracker=true&${queryParams}`, '_blank', windowFeatures);
+        window.open(`./index.html?tracker=true&${queryParams}&boxes=${boxCount}`, '_blank', windowFeatures);
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = event.target;
         setSettings((prev) => ({
             ...prev,
-            [name]: checked,
-            ['boxes']: Math.min(3, prev.boxes + (checked ? 1 : -1)) 
+            [name]: checked
         }));
     };
 
     return (
         <>
-        <div className="flex justify-center items-center mb-12">
-            <h1>Auto Stats v0.0.3</h1>
+        <div className="flex justify-center items-center mb-12 font-semibold">
+            <h1>Auto Stats v0.0.4</h1>
         </div>
         <div className="flex justify-center items-center mt-8">
             <form onSubmit={handleSubmit} className="space-y-4">
-            <Checkbox checked={settings.checkCount} handleChange={handleChange} name="checkCount" label="Check Counts" />
-            <Checkbox checked={settings.bonks} handleChange={handleChange} name="bonks" label="Bonks" />
-            <Checkbox checked={settings.chestTurns} handleChange={handleChange} name="chestTurns" label="Chest Turns" />
+            <Checkbox checked={settings.checkCount} handleChange={handleChange} name="checkCount" label="Check Counts (checks per hour)" />
+            <Checkbox checked={settings.bonks} handleChange={handleChange} name="bonks" label="Bonks (milliBonks per minute)" />
+            <Checkbox checked={settings.chestTurns} handleChange={handleChange} name="chestTurns" label="Chest Turns (chest turns per hour)" />
+            <Checkbox checked={settings.deaths} handleChange={handleChange} name="deaths" label="Deaths (megadeaths per millenia)" />
+            <Checkbox checked={settings.rupees} handleChange={handleChange} name="rupees" label="Rupees (rupees per hour)" />
+            <Checkbox checked={settings.screens} handleChange={handleChange} name="screens" label="Screens (screens per hour)" />
+            <Checkbox checked={settings.damage} handleChange={handleChange} name="damage" label="Damage (damage per hour)" />
+            <Checkbox checked={settings.magic} handleChange={handleChange} name="magic" label="Magic (magic per hour)" />
             <button type="submit" className="bg-slate-900 hover:bg-slate-700 active:bg-red-700 text-gray-100 py-2 px-3 beveled-box rounded-md flex items-center justify-center gap-2 transition-all duration-150 ease-in-out text-s active:shadow-inner active:scale-95">
                 Launch
             </button>

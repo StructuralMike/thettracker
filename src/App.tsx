@@ -1,5 +1,4 @@
-import React, { useRef, useState } from 'react'
-import './App.css'
+import React, { useEffect, useRef, useState } from 'react'
 import useAutoTrackWebSocket from './autotrack.tsx'
 import { autotrackingProps } from './autotrack.tsx'
 import { TimerProps } from './timer.tsx'
@@ -8,27 +7,22 @@ import Box from './statbox.tsx'
 import { useShouldStart } from './timerContext.tsx'
 
 
-function App() {
+export interface userSettingsProps {
+  checkCount: boolean;
+  bonks: boolean;
+  chestTurns: boolean;
+  boxes: string;
+};
 
-  const params = new URLSearchParams(window.location.search);
-  const userSettings = {
-    checkCount: params.get('checkCount') === 'true',
-    bonks: params.get('bonks') === 'true',
-    chestTurns: params.get('chestTurns') === 'true',
-    boxes: 0
-  };
-  if (userSettings.checkCount) userSettings.boxes++;
-  if (userSettings.bonks) userSettings.boxes++;
-  if (userSettings.chestTurns) userSettings.boxes++;
-  if (userSettings.boxes === 0) userSettings.boxes = 1;
-  if (userSettings.boxes === 2) userSettings.boxes = 3;
+function App(props: userSettingsProps) {
+  const [userSettings, setUserSettings] = useState<userSettingsProps>(props);
 
   const timerProps = useRef<TimerProps>({
     timeStarted: 0,
     startAt: 0,
     duration: 0
   });
-  const props = useRef<autotrackingProps>({
+  const autotrackingProps = useRef<autotrackingProps>({
     status: 'Disconnected',
     host: 'ws://localhost',
     port: 23074,
@@ -38,7 +32,7 @@ function App() {
     bonks: 0
   });
   const { shouldStart, setShouldStart, timerOn, setTimerOn } = useShouldStart();
-  const data = useAutoTrackWebSocket(props.current);
+  const data = useAutoTrackWebSocket(autotrackingProps.current);
   const timer = Timer(timerProps.current);
   const [manualCheckCount, setManualCheckCount] = useState<number>(0);
   const seconds = Math.floor(timer.duration / 1000);
@@ -79,7 +73,7 @@ function App() {
   return (
     <>
       <div>
-        <span className={`inline-grid grid-cols-${userSettings.boxes} gap-4`}>
+        <span className={`inline-grid gap-4 grid-cols-${userSettings.boxes}`}>
           {userSettings.checkCount && (
             <button onClick={() => setManualCheckCount((prev) => prev + 1)} onContextMenu={handleRightClick} onWheel={handleScroll}>
               <Box title="Check Count" count={data.checkCount + manualCheckCount} speed={cph} unit="cph" buckets={SPEED_MAP.current['cph'].buckets} colors={SPEED_MAP.current['cph'].colors}/>

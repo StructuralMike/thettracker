@@ -1,13 +1,32 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
-import './index.css'
+import './tracker.css'
 import { ShouldStartProvider } from './timerContext.tsx'
+import { userSettingsProps } from './App.tsx'
+import { useRef } from 'react';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+function Tracker() {
+        
+    const params = new URLSearchParams(window.location.search);
+    const parseUrlBoxes = () => {
+        const boxes = params.get('boxes');
+        if (boxes === null) {
+            return '3';
+        }
+        return boxes;
+    };
+    const userSettingsProps = useRef<userSettingsProps>({
+      checkCount: params.get('checkCount') === 'true',
+      bonks: params.get('bonks') === 'true',
+      chestTurns: params.get('chestTurns') === 'true',
+      boxes: parseUrlBoxes()
+    });
 
-    <ShouldStartProvider>
-        <App />
-    </ShouldStartProvider>
 
-)
+    return (
+        <ShouldStartProvider>
+            <App checkCount={userSettingsProps.current.checkCount} bonks={userSettingsProps.current.bonks} chestTurns={userSettingsProps.current.chestTurns} boxes={userSettingsProps.current.boxes}/>
+        </ShouldStartProvider>
+    )
+}
+
+export default Tracker

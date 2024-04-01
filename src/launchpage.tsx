@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import Checkbox from './checkbox.tsx';
+import './launchpage.css';
 
 const LaunchPage = () => {
     const [settings, setSettings] = useState({
         checkCount: true,
         bonks: false,
-        chestTurns: false
+        chestTurns: false,
+        boxes: 1
     });
     
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -13,14 +15,15 @@ const LaunchPage = () => {
 
         const queryParams = new URLSearchParams(Object.entries(settings).filter(([_, value]) => value).map(([key, value]) => [key, String(value)])).toString();
         const windowFeatures = "width=600, height=600, menubar=no, toolbar=no, location=no, status=no, resizable=yes, scrollbars=yes";
-        window.open(`./tracker.html?${queryParams}`, '_blank', windowFeatures);
+        window.open(`./index.html?tracker=true&${queryParams}`, '_blank', windowFeatures);
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = event.target;
         setSettings((prev) => ({
             ...prev,
-            [name]: checked
+            [name]: checked,
+            ['boxes']: Math.min(3, prev.boxes + (checked ? 1 : -1)) 
         }));
     };
 

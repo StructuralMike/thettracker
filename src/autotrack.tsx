@@ -291,6 +291,13 @@ function useAutoTrackWebSocket(props: autotrackingProps){
             };
         }
 
+        const currentMagic = sram[STATS_WORDS_MAP['MAGIC']] + sram[STATS_WORDS_MAP['MAGIC']+1]*256;
+        if (currentMagic !== dataRef.current.magic) {
+            updates = { ...updates,
+                magic: currentMagic
+            };
+        }
+
         if (Object.keys(updates).length > 0) {
             setData(prev => ({ ...prev, ...updates}))
         }

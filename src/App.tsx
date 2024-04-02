@@ -46,23 +46,26 @@ function App(props: userSettingsProps) {
   const timer = Timer(timerProps.current);
   const [manualCheckCount, setManualCheckCount] = useState<number>(0);
   const seconds = Math.floor(timer.duration / 1000);
-  const cph = Math.round((data.checkCount + manualCheckCount) / (seconds / 3600));
+  const hours = Math.floor(seconds / 3600);
+  const cph = Math.round((data.checkCount + manualCheckCount) / hours);
   const duration = new Date(seconds * 1000).toISOString().substr(11, 8);
   const mBpm = Math.round(data.bonks / (seconds / 60) * 1000);
-  const ctph = Math.round(data.chestTurns / (seconds / 3600));
+  const ctph = Math.round(data.chestTurns / hours);
   const mdpm = Math.round((data.deaths * 31557.6) / seconds);
-  const rph = Math.round(data.rupees / (seconds / 3600));
-  const sph = Math.round(data.screens / (seconds / 3600));
-  const dph = Math.round(data.damage / (seconds / 3600));
-  const mph = Math.round(data.magic / (seconds / 3600));
+  const rph = Math.round(data.rupees / hours);
+  const sph = Math.round(data.screens / hours);
+  const damage = Math.round(data.damage / 16);
+  const dph = Math.round(damage / hours);
+  const magic = Math.round(10 * data.magic / 128) / 10;
+  const mph = Math.round(magic / hours);
   const SPEED_MAP = useRef({
-    'cph': {'buckets': [65, 85, 100, 115, 130], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
+    'cph': {'buckets': [70, 85, 100, 115, 130], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
     'mBpm': {'buckets': [0, 100, 200, 400, 800], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
     'ctph': {'buckets': [0, 10, 25], 'colors': [[58,134,255], [251,86,7], [255,190,11]]},
-    'mdpm': {'buckets': [0, 1, 5, 20, 50], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
-    'rph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
-    'sph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
-    'dph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
+    'Mdpm': {'buckets': [0, 1, 5, 20, 50], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
+    'rph': {'buckets': [0, 3000], 'colors': [[58,134,255], [255,190,11]]},
+    'sph': {'buckets': [0, 800], 'colors': [[58,134,255], [255,190,11]]},
+    'dph': {'buckets': [0, 100], 'colors': [[58,134,255], [255,190,11]]},
     'mph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]}
   });
   if (data.maxChecks > 400) {
@@ -96,7 +99,7 @@ function App(props: userSettingsProps) {
         <span className={`inline-grid gap-0 grid-cols-${userSettings.boxes}`}>
           {userSettings.checkCount && (
             <button onClick={() => setManualCheckCount((prev) => prev + 1)} onContextMenu={handleRightClick} onWheel={handleScroll}>
-              <Box title="Check Count" count={data.checkCount + manualCheckCount} speed={cph} unit="cph" buckets={SPEED_MAP.current['cph'].buckets} colors={SPEED_MAP.current['cph'].colors}/>
+              <Box title="Checks" count={data.checkCount + manualCheckCount} speed={cph} unit="cph" buckets={SPEED_MAP.current['cph'].buckets} colors={SPEED_MAP.current['cph'].colors}/>
             </button>
           )}
           {userSettings.bonks && (
@@ -106,19 +109,19 @@ function App(props: userSettingsProps) {
             <Box title="Chest Turns" count={data.chestTurns} speed={ctph} unit="ctph" buckets={SPEED_MAP.current['ctph'].buckets} colors={SPEED_MAP.current['ctph'].colors} />
           )}
           {userSettings.deaths && (
-            <Box title="Deaths" count={data.deaths} speed={mdpm} unit="mdpm" buckets={SPEED_MAP.current['mdpm'].buckets} colors={SPEED_MAP.current['mdpm'].colors} />
+            <Box title="Deaths" count={data.deaths} speed={mdpm} unit="Mdpm" buckets={SPEED_MAP.current['Mdpm'].buckets} colors={SPEED_MAP.current['Mdpm'].colors} />
           )}
           {userSettings.rupees && (
-            <Box title="Rupees" count={data.rupees} speed={rph} unit="rph" buckets={SPEED_MAP.current['rph'].buckets} colors={SPEED_MAP.current['rph'].colors} />
+            <Box title="Rupees Spent" count={data.rupees} speed={rph} unit="rph" buckets={SPEED_MAP.current['rph'].buckets} colors={SPEED_MAP.current['rph'].colors} />
           )}
           {userSettings.screens && (
             <Box title="Screens" count={data.screens} speed={sph} unit="sph" buckets={SPEED_MAP.current['sph'].buckets} colors={SPEED_MAP.current['sph'].colors} />
           )}
           {userSettings.damage && (
-            <Box title="Damage" count={data.damage} speed={dph} unit="dph" buckets={SPEED_MAP.current['dph'].buckets} colors={SPEED_MAP.current['dph'].colors} />
+            <Box title="Hearts Lost" count={damage} speed={dph} unit="dph" buckets={SPEED_MAP.current['dph'].buckets} colors={SPEED_MAP.current['dph'].colors} />
           )}
           {userSettings.magic && (
-            <Box title="Magic" count={data.magic} speed={mph} unit="mph" buckets={SPEED_MAP.current['mph'].buckets} colors={SPEED_MAP.current['mph'].colors} />
+            <Box title="Magic Bars" count={magic} speed={mph} unit="mph" buckets={SPEED_MAP.current['mph'].buckets} colors={SPEED_MAP.current['mph'].colors} />
           )}
         </span>
         <div className="flex justify-center items-center space-x-4 mb-8">

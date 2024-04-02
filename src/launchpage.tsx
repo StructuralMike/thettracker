@@ -13,10 +13,37 @@ const LaunchPage = () => {
         return acc;
     }, {} as Settings);
     const [settings, setSettings] = useState<Settings>(initialSettings);
+
     
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        const determineBoxCount = (settings: Settings) => {
+            const currentCount = Object.entries(settings).filter(([_, value]) => value).length;
+            switch (currentCount) {
+                case 0:
+                    return 1;
+                case 1:
+                    return 1;
+                case 2:
+                    return 2;
+                case 3:
+                    return 3;
+                case 4:
+                    return 4;
+                case 5:
+                    return 3;
+                case 6:
+                    return 3;
+                case 7:
+                    return 4;
+                case 8:
+                    return 4;
+                default:
+                    return 4;
+            }
+        };
+
         event.preventDefault();
-        const boxCount = Math.min(4, Object.entries(settings).filter(([_, value]) => value).length);
+        const boxCount = determineBoxCount(settings);
         const queryParams = new URLSearchParams(Object.entries(settings).filter(([_, value]) => value).map(([key, value]) => [key, String(value)])).toString();
         const windowFeatures = "width=600, height=600, menubar=no, toolbar=no, location=no, status=no, resizable=yes, scrollbars=yes";
         window.open(`./index.html?tracker=true&${queryParams}&boxes=${boxCount}`, '_blank', windowFeatures);
@@ -33,7 +60,10 @@ const LaunchPage = () => {
     return (
         <>
         <div className="flex justify-center items-center mb-12 font-semibold">
-            <h1>Auto Stats v0.0.4</h1>
+            <h1>Auto Stats v0.0.41</h1>
+        </div>
+        <div className="flex justify-center items-center mb-12 font-semibold">
+        <h3>thx plasmasnake</h3>
         </div>
         <div className="flex justify-center items-center mt-8">
             <form onSubmit={handleSubmit} className="space-y-4">

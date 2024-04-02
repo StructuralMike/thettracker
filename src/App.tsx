@@ -46,8 +46,8 @@ function App(props: userSettingsProps) {
   const timer = Timer(timerProps.current);
   const [manualCheckCount, setManualCheckCount] = useState<number>(0);
   const seconds = Math.floor(timer.duration / 1000);
-  const hours = Math.floor(seconds / 3600);
-  const cph = Math.round((data.checkCount + manualCheckCount) / hours);
+  const hours = timer.duration / 3600000;
+  const cph = Math.round((data.checkCount + manualCheckCount) / (seconds / 3600));
   const duration = new Date(seconds * 1000).toISOString().substr(11, 8);
   const mBpm = Math.round(data.bonks / (seconds / 60) * 1000);
   const ctph = Math.round(data.chestTurns / hours);

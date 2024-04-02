@@ -37,14 +37,14 @@ const LaunchPage = () => {
         </div>
         <div className="flex justify-center items-center mt-8">
             <form onSubmit={handleSubmit} className="space-y-4">
-            <Checkbox checked={settings.checkCount} handleChange={handleChange} name="checkCount" label="Check Counts (checks per hour)" />
+            <Checkbox checked={settings.checkCount} handleChange={handleChange} name="checkCount" label="Checks (checks per hour)" />
             <Checkbox checked={settings.bonks} handleChange={handleChange} name="bonks" label="Bonks (milliBonks per minute)" />
             <Checkbox checked={settings.chestTurns} handleChange={handleChange} name="chestTurns" label="Chest Turns (chest turns per hour)" />
             <Checkbox checked={settings.deaths} handleChange={handleChange} name="deaths" label="Deaths (megadeaths per millenia)" />
-            <Checkbox checked={settings.rupees} handleChange={handleChange} name="rupees" label="Rupees (rupees per hour)" />
-            <Checkbox checked={settings.screens} handleChange={handleChange} name="screens" label="Screens (screens per hour)" />
-            <Checkbox checked={settings.damage} handleChange={handleChange} name="damage" label="Damage (damage per hour)" />
-            <Checkbox checked={settings.magic} handleChange={handleChange} name="magic" label="Magic (magic per hour)" />
+            <Checkbox checked={settings.rupees} handleChange={handleChange} name="rupees" label="Rupees (rupees spent per hour)" />
+            <Checkbox checked={settings.screens} handleChange={handleChange} name="screens" label="Screen Transitions (screens per hour)" />
+            <Checkbox checked={settings.damage} handleChange={handleChange} name="damage" label="Damage Taken (hearts spent per hour)" />
+            <Checkbox checked={settings.magic} handleChange={handleChange} name="magic" label="Magic Used (magic bars per hour)" />
             <button type="submit" className="bg-slate-900 hover:bg-slate-700 active:bg-red-700 text-gray-100 py-2 px-3 beveled-box rounded-md flex items-center justify-center gap-2 transition-all duration-150 ease-in-out text-s active:shadow-inner active:scale-95">
                 Launch
             </button>

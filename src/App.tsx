@@ -6,16 +6,7 @@ import Timer from './components/timer.tsx'
 import Box from './components/statbox.tsx'
 import { useShouldStart } from './timerContext.tsx'
 
-const SPEED_MAP = useRef({
-  'cph': {'buckets': [70, 85, 100, 115, 130], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
-  'mBpm': {'buckets': [0, 100, 200, 400, 800], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
-  'ctph': {'buckets': [0, 10, 25], 'colors': [[58,134,255], [251,86,7], [255,190,11]]},
-  'Mdpm': {'buckets': [0, 1, 5, 20, 50], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
-  'rph': {'buckets': [0, 1000, 3000], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
-  'sph': {'buckets': [0, 400, 800], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
-  'dph': {'buckets': [0, 25, 100], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
-  'mph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]}
-});
+
 
 export interface userSettingsProps {
   checkCount: boolean;
@@ -30,6 +21,16 @@ export interface userSettingsProps {
 };
 
 function App(props: userSettingsProps) {
+  const SPEED_MAP = useRef({
+    'cph': {'buckets': [70, 85, 100, 115, 130], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
+    'mBpm': {'buckets': [0, 100, 200, 400, 800], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
+    'ctph': {'buckets': [0, 10, 25], 'colors': [[58,134,255], [251,86,7], [255,190,11]]},
+    'Mdpm': {'buckets': [0, 1, 5, 20, 50], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
+    'rph': {'buckets': [0, 1000, 3000], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
+    'sph': {'buckets': [0, 400, 800], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
+    'dph': {'buckets': [0, 25, 100], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
+    'mph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]}
+  });
   const [userSettings, setUserSettings] = useState<userSettingsProps>(props);
 
   const timerProps = useRef<TimerProps>({

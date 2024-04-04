@@ -1,5 +1,5 @@
 import './css/tracker.css'
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import App from './App.tsx'
 import { userSettingsProps } from './App.tsx'
 import { ShouldStartProvider } from './timerContext.tsx'
@@ -26,6 +26,9 @@ function Tracker() {
         boxes: parseUrlBoxes()
     });
 
+    useEffect(() => {
+        document.title = 'Stonks Tracker - Checks Go Brrrr';
+    }, []);
 
     return (
         <ShouldStartProvider>

@@ -6,6 +6,16 @@ import Timer from './components/timer.tsx'
 import Box from './components/statbox.tsx'
 import { useShouldStart } from './timerContext.tsx'
 
+const SPEED_MAP = useRef({
+  'cph': {'buckets': [70, 85, 100, 115, 130], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
+  'mBpm': {'buckets': [0, 100, 200, 400, 800], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
+  'ctph': {'buckets': [0, 10, 25], 'colors': [[58,134,255], [251,86,7], [255,190,11]]},
+  'Mdpm': {'buckets': [0, 1, 5, 20, 50], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
+  'rph': {'buckets': [0, 1000, 3000], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
+  'sph': {'buckets': [0, 400, 800], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
+  'dph': {'buckets': [0, 25, 100], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
+  'mph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]}
+});
 
 export interface userSettingsProps {
   checkCount: boolean;
@@ -42,13 +52,18 @@ function App(props: userSettingsProps) {
     magic: 0
   });
   const { shouldStart, setShouldStart, timerOn, setTimerOn } = useShouldStart();
+  const [manualCheckCount, setManualCheckCount] = useState<number>(0);
   const data = useAutoTrackWebSocket(autotrackingProps.current);
   const timer = Timer(timerProps.current);
-  const [manualCheckCount, setManualCheckCount] = useState<number>(0);
+  if (data.maxChecks > 400) {
+    SPEED_MAP.current['cph'].buckets = [150, 250, 350, 450, 550]
+  };
+
+  const duration = new Date(timer.duration).toISOString().substr(11, 8);
   const seconds = Math.floor(timer.duration / 1000);
   const hours = timer.duration / 3600000;
+
   const cph = Math.round((data.checkCount + manualCheckCount) / (seconds / 3600));
-  const duration = new Date(seconds * 1000).toISOString().substr(11, 8);
   const mBpm = Math.round(data.bonks / (seconds / 60) * 1000);
   const ctph = Math.round(data.chestTurns / hours);
   const mdpm = Math.round((data.deaths * 31557.6) / seconds);
@@ -58,19 +73,6 @@ function App(props: userSettingsProps) {
   const dph = Math.round(damage / hours);
   const magic = Math.round(10 * data.magic / 128) / 10;
   const mph = Math.round((10 * data.magic / 128) / 10 / hours);
-  const SPEED_MAP = useRef({
-    'cph': {'buckets': [70, 85, 100, 115, 130], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]},
-    'mBpm': {'buckets': [0, 100, 200, 400, 800], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
-    'ctph': {'buckets': [0, 10, 25], 'colors': [[58,134,255], [251,86,7], [255,190,11]]},
-    'Mdpm': {'buckets': [0, 1, 5, 20, 50], 'colors': [[255,190,11], [251,86,7], [255,0,110], [131,56,236], [58,134,255]]},
-    'rph': {'buckets': [0, 1000, 3000], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
-    'sph': {'buckets': [0, 400, 800], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
-    'dph': {'buckets': [0, 25, 100], 'colors': [[58,134,255], [255,0,110], [255,190,11]]},
-    'mph': {'buckets': [0, 50, 100, 200, 400], 'colors': [[58,134,255], [131,56,236], [255,0,110], [251,86,7], [255,190,11]]}
-  });
-  if (data.maxChecks > 400) {
-    SPEED_MAP.current['cph'].buckets = [150, 250, 350, 450, 550]
-  };
   
   const handleRightClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();

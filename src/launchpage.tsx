@@ -60,7 +60,7 @@ const LaunchPage = () => {
     return (
         <>
         <div className="flex justify-center items-center mb-12 font-semibold">
-            <h1>Auto Stats v0.0.42</h1>
+            <h1>Auto Stats v0.0.43</h1>
         </div>
         <div className="flex justify-center items-center mb-12 font-semibold">
         <h3>by StructuralMike</h3>

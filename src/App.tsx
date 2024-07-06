@@ -60,7 +60,7 @@ function App(props: userSettingsProps) {
     SPEED_MAP.current['cph'].buckets = [150, 250, 350, 450, 550]
   };
 
-  const duration = new Date(timer.duration).toISOString().substr(11, 8);
+  const duration = new Date(timer.duration + 1500).toISOString().substr(11, 8);
   const seconds = Math.floor(timer.duration / 1000);
   const hours = timer.duration / 3600000;
 
@@ -130,37 +130,42 @@ function App(props: userSettingsProps) {
         <div className="flex justify-center items-center space-x-4 mb-8">
           <div className="p-4">
               <h2 className="text-4xl font-bold text-blue-500" style={{ textShadow: '2px 2px 3px rgba(0,0,0,0.5)' }}>
-                  {duration}
+                {shouldStart ? 
+                  duration
+                : (
+                  "00:00:00"
+                )}
               </h2>
           </div>
-      </div>
+        </div>
 
-
-      <div className="flex justify-center items-center space-x-4 mb-4">
-        <button
-            className="bg-blue-500 hover:bg-blue-700 text-white beveled-box font-bold py-1 px-3 rounded flex items-center justify-center gap-2 w-10 h-10 transition-all duration-150 ease-in-out"
-            onClick={() => setTimerOn(!timerOn)}
-        >
-            {timerOn ? (
-            <>
-                {/* Pause icon: Two divs for the vertical bars, slightly adjusted for new button size */}
-                <div className="w-1.5 h-5 bg-white"></div>
-                <div className="w-1.5 h-5 bg-white"></div>
-            </>
-            ) : (
-            <>
-                {/* Play (Start) icon: Adjusted triangle for a balanced look within the new button size */}
-                <div className="w-0 h-0 border-t-[7.5px] border-b-[7.5px] border-l-[15px] border-transparent border-l-white"></div>
-            </>
-            )}
-        </button>
-        <button
-          className="bg-purple-900 hover:bg-purple-800 active:bg-red-700 text-gray-100 strong-button-font py-2 px-3 beveled-box rounded-md flex items-center justify-center gap-2 transition-all duration-150 ease-in-out text-s active:shadow-inner active:scale-95"
-          onClick={() => setManualCheckCount((prev) => 0)}
-        >
-          DE-FLUFF
-        </button>
-      </div>
+        {shouldStart && (
+          <div className="flex justify-center items-center space-x-4 mb-4">
+            <button
+                className="bg-blue-500 hover:bg-blue-700 text-white beveled-box font-bold py-1 px-3 rounded flex items-center justify-center gap-2 w-10 h-10 transition-all duration-150 ease-in-out"
+                onClick={() => setTimerOn(!timerOn)}
+            >
+              {timerOn ? (
+                <>
+                    {/* Pause icon: Two divs for the vertical bars, slightly adjusted for new button size */}
+                    <div className="w-1.5 h-5 bg-white"></div>
+                    <div className="w-1.5 h-5 bg-white"></div>
+                </>
+                ) : (
+                <>
+                    {/* Play (Start) icon: Adjusted triangle for a balanced look within the new button size */}
+                    <div className="w-0 h-0 border-t-[7.5px] border-b-[7.5px] border-l-[15px] border-transparent border-l-white"></div>
+                </>
+              )}
+            </button>
+            <button
+              className="bg-purple-900 hover:bg-purple-800 active:bg-red-700 text-gray-100 strong-button-font py-2 px-3 beveled-box rounded-md flex items-center justify-center gap-2 transition-all duration-150 ease-in-out text-s active:shadow-inner active:scale-95"
+              onClick={() => setManualCheckCount((prev) => 0)}
+            >
+              DE-FLUFF
+            </button>
+          </div>
+        )}
 
       <div className="flex justify-center items-center space-x-4">
         <small className="hover:text-orange-400">{data.status}</small>

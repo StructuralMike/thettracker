@@ -130,7 +130,7 @@ function App(props: userSettingsProps) {
         <div className="flex justify-center items-center space-x-4 mb-8">
           <div className="p-4">
               <h2 className="text-4xl font-bold text-blue-500" style={{ textShadow: '2px 2px 3px rgba(0,0,0,0.5)' }}>
-                {shouldStart ? 
+                {timer.duration > 1500 ? 
                   duration
                 : (
                   "00:00:00"
@@ -139,7 +139,7 @@ function App(props: userSettingsProps) {
           </div>
         </div>
 
-        {shouldStart && (
+        {timer.duration > 1500 && (
           <div className="flex justify-center items-center space-x-4 mb-4">
             <button
                 className="bg-blue-500 hover:bg-blue-700 text-white beveled-box font-bold py-1 px-3 rounded flex items-center justify-center gap-2 w-10 h-10 transition-all duration-150 ease-in-out"
